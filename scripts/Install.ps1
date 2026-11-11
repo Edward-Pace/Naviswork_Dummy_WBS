@@ -11,6 +11,7 @@ if(-not [IO.Path]::GetFullPath($destination).StartsWith($checkedRoot,[StringComp
 if(Test-Path -LiteralPath $destination){
  if(-not $ReplaceExisting){throw 'Existing dummy plugin found. Use -ReplaceExisting to retain a backup and replace it.'}
  $backup=$destination+'.backup-'+(Get-Date -Format 'yyyyMMdd-HHmmss')+'-'+[Guid]::NewGuid().ToString('N').Substring(0,6)
+ if(-not [IO.Path]::GetFullPath($backup).StartsWith($checkedRoot,[StringComparison]::OrdinalIgnoreCase)){throw 'Invalid backup destination.'}
  if($PSCmdlet.ShouldProcess($destination,"Back up to $backup")){Move-Item -LiteralPath $destination -Destination $backup}
 }
 if($PSCmdlet.ShouldProcess($destination,'Install dummy WBS plugin')){

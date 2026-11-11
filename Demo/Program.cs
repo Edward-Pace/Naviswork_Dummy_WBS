@@ -91,6 +91,16 @@ namespace DummyWbs.Demo
     Assert(Exporter.Cell("=1+1").StartsWith("\"'="),"formula not escaped");
     Assert(Exporter.Cell(" \t@SUM(1)").Contains("'"),"leading whitespace not protected");
     Assert(Exporter.Cell("a\"b")=="\"a\"\"b\"","quotes not escaped");});
+   run("Grouping cancellation propagates to the caller",()=>{
+    bool stopped=false;
+    try {WbsBuilder.Build(Fixture(),DemoSettings(),(stage,processed)=>{throw new OperationCanceledException();});}
+    catch(OperationCanceledException){stopped=true;}
+    Assert(stopped,"cancellation was swallowed");});
+   run("Grouping time limit propagates to the caller",()=>{
+    bool stopped=false;
+    try {WbsBuilder.Build(Fixture(),DemoSettings(),(stage,processed)=>{throw new TimeoutException();});}
+    catch(TimeoutException){stopped=true;}
+    Assert(stopped,"time limit was swallowed");});
    Console.WriteLine(count+" tests passed; 0 failed.");
   }
  }

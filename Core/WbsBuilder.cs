@@ -45,7 +45,7 @@ namespace DummyWbs.Core
    }
    return new ResolvedField();
   }
-  public static Result Build(IReadOnlyList<Node> nodes,Settings settings)
+  public static Result Build(IReadOnlyList<Node> nodes,Settings settings,Action<string,int> checkpoint=null)
   {
    settings.Validate();
    if(nodes.Count>settings.MaximumNodes) throw new ArgumentException("Node limit exceeded; no complete WBS can be claimed.");
@@ -56,6 +56,7 @@ namespace DummyWbs.Core
    var components=new Dictionary<string,Component>(StringComparer.Ordinal);
    foreach(var leaf in nodes.Where(n=>n.IsTerminalGeometry))
    {
+    checkpoint?.Invoke("Building WBS",components.Count);
     var chain=Ancestors(leaf,index).ToArray();
     // Prefer the nearest logical node with a configured identifying property.
     var owner=chain.FirstOrDefault(n=>Candidate(n,settings)) ?? leaf;
@@ -75,6 +76,7 @@ namespace DummyWbs.Core
    }
    foreach(var n in nodes)
    {
+    checkpoint?.Invoke("Reviewing properties",components.Count);
     foreach(var p in n.Properties.Where(p=>!string.IsNullOrEmpty(p.Error)))
      result.Issues.Add(new Issue {NodeKey=n.Key,Code="PROPERTY_READ_ERROR",Detail=p.Category+" > "+p.Name+": "+p.Error});
     if(n.HasGeometry && !n.IsTerminalGeometry)
@@ -84,6 +86,7 @@ namespace DummyWbs.Core
    var tree=new Group {Name="Model WBS"};
    foreach(var c in result.Components)
    {
+    checkpoint?.Invoke("Assembling WBS",components.Count);
     var group=tree;
     foreach(var level in settings.WbsLevels)
     {

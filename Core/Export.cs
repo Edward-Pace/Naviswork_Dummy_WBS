@@ -23,19 +23,22 @@ namespace DummyWbs.Core
   private static void Row(StreamWriter w,params string[] cells) => w.WriteLine(string.Join(",",cells.Select(Cell)));
   private static string N(int n)=>n.ToString(CultureInfo.InvariantCulture);
   private static StreamWriter Csv(string directory,string file) => new StreamWriter(new FileStream(Path.Combine(directory,file),FileMode.CreateNew),new UTF8Encoding(true));
-  public static string Write(string parent,IReadOnlyList<Node> nodes,Settings settings,Result result)
+  public static string Write(string parent,IReadOnlyList<Node> nodes,Settings settings,Result result,Action<string,int> checkpoint=null,string scope="Complete supplied snapshot")
   {
    var directory=Path.Combine(parent,"dummy-wbs-"+DateTime.UtcNow.ToString("yyyyMMdd-HHmmss",CultureInfo.InvariantCulture)+"-"+Guid.NewGuid().ToString("N").Substring(0,8));
    Directory.CreateDirectory(directory);
+   checkpoint?.Invoke("Writing files",0);
+   File.WriteAllText(Path.Combine(directory,"RUN-STATUS.txt"),"Run not completed. Ignore output until summary.txt is successfully written.");
    // JSON preserves literal model strings; CSV escapes potential spreadsheet formula prefixes.
    WriteJson(Path.Combine(directory,"model-snapshot.json"),nodes.ToList());
+   checkpoint?.Invoke("Writing files",1);
    WriteJson(Path.Combine(directory,"wbs-settings.json"),settings);
    using(var w=Csv(directory,"nodes.csv"))
    {Row(w,"NodeKey","ParentKey","SourceKey","SourceModel","Name","TreePath","HasGeometry","TerminalGeometry","DirectPropertyCount");
-    foreach(var n in nodes) Row(w,n.Key,n.ParentKey,n.SourceKey,n.SourceModel,n.Name,n.TreePath,n.HasGeometry.ToString(),n.IsTerminalGeometry.ToString(),N(n.Properties.Count));}
+    foreach(var n in nodes) {checkpoint?.Invoke("Writing files",2);Row(w,n.Key,n.ParentKey,n.SourceKey,n.SourceModel,n.Name,n.TreePath,n.HasGeometry.ToString(),n.IsTerminalGeometry.ToString(),N(n.Properties.Count));}}
    using(var w=Csv(directory,"properties.csv"))
    {Row(w,"NodeKey","SourceModel","TreePath","Category","CategoryInternal","Property","PropertyInternal","DisplayValue","ReadError");
-    foreach(var n in nodes) foreach(var p in n.Properties) Row(w,n.Key,n.SourceModel,n.TreePath,p.Category,p.CategoryInternal,p.Name,p.NameInternal,p.Value,p.Error);}
+    foreach(var n in nodes) {checkpoint?.Invoke("Writing files",3);foreach(var p in n.Properties) Row(w,n.Key,n.SourceModel,n.TreePath,p.Category,p.CategoryInternal,p.Name,p.NameInternal,p.Value,p.Error);}}
    using(var w=Csv(directory,"property-profile.csv"))
    {Row(w,"SourceKey","SourceModel","Category","CategoryInternal","Property","PropertyInternal","NodesWithProperty","NonblankReadableValues","ReadErrors");
     var flat=nodes.SelectMany(n=>n.Properties.Select(p=>new{Node=n,Property=p}));
@@ -45,19 +48,20 @@ namespace DummyWbs.Core
        N(g.Count(x=>string.IsNullOrEmpty(x.Property.Error)&&!string.IsNullOrWhiteSpace(x.Property.Value))),N(g.Count(x=>!string.IsNullOrEmpty(x.Property.Error))));}
    using(var w=Csv(directory,"dummy-wbs.csv"))
    {Row(w,"WbsCode","ParentWbsCode","Level","Kind","Name","ComponentKey","ProvisionalComponentCount","TerminalGeometryCount");
-    foreach(var r in result.Wbs) Row(w,r.Code,r.ParentCode,N(r.Level),r.Kind,r.Name,r.ComponentKey,N(r.ComponentCount),N(r.GeometryLeaves));}
+    foreach(var r in result.Wbs) {checkpoint?.Invoke("Writing files",4);Row(w,r.Code,r.ParentCode,N(r.Level),r.Kind,r.Name,r.ComponentKey,N(r.ComponentCount),N(r.GeometryLeaves));}}
    using(var w=Csv(directory,"components.csv"))
    {
     var header=new List<string>{"WbsCode","ComponentKey","SourceModel","TreePath","ComponentName","TerminalGeometryCount"};
     foreach(var field in Settings.Fields) header.AddRange(new[]{field,field+"State",field+"OriginNode",field+"OriginProperty"});
     Row(w,header.ToArray());
     foreach(var c in result.Components)
-    {var values=new List<string>{c.WbsCode,c.Node.Key,c.Node.SourceModel,c.Node.TreePath,c.Node.Name,N(c.GeometryLeaves)};
+    {checkpoint?.Invoke("Writing files",5);var values=new List<string>{c.WbsCode,c.Node.Key,c.Node.SourceModel,c.Node.TreePath,c.Node.Name,N(c.GeometryLeaves)};
      foreach(var field in Settings.Fields){var p=c.Fields[field];values.AddRange(new[]{p.Value,p.State,p.OriginNode,p.OriginProperty});}
      Row(w,values.ToArray());}
    }
    using(var w=Csv(directory,"issues.csv"))
    {Row(w,"NodeKey","Code","Detail");foreach(var issue in result.Issues)Row(w,issue.NodeKey,issue.Code,issue.Detail);}
+   checkpoint?.Invoke("Writing files",6);
    File.WriteAllText(Path.Combine(directory,"summary.txt"),
     "DUMMY WBS - REVIEW REQUIRED\r\nCreated UTC: "+DateTime.UtcNow.ToString("O")+"\r\n"+
     "Nodes inventoried: "+nodes.Count+"\r\nProperties inventoried: "+nodes.Sum(n=>n.Properties.Count)+"\r\n"+
@@ -68,6 +72,8 @@ namespace DummyWbs.Core
     "Source model names are inferred from filename-like hierarchy nodes, not verified vendor identities.\r\n"+
     "Only terminal geometry contributes to the proposed component WBS; all hierarchy properties remain inventoried.\r\n"+
     "Exports contain model data. Keep them in local-data and out of GitHub.\r\n",Encoding.UTF8);
+   File.WriteAllText(Path.Combine(directory,"scan-scope.txt"),scope);
+   File.WriteAllText(Path.Combine(directory,"RUN-STATUS.txt"),"COMPLETE EXPORT - "+scope);
    return directory;
   }
  }

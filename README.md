@@ -47,7 +47,7 @@ Build.ps1 builds and packages. Visual Studio's Build Solution compiles the proje
 2. Run ` .\scripts\Install.ps1 ` from the repository root.
 3. Reopen Navisworks 2027 and an approved sample model.
 4. Under the **Tool add-ins** tab, look for **Dummy WBS - Export Property Inventory**.
-5. Run the command, confirm the whole-model read, and choose a local output folder.
+5. Select one small branch in the Selection Tree, run the command, keep Sample selected, and choose a local output folder.
 6. Review the new output folder. Start with **property-profile.csv**, then tune mappings and replay the snapshot.
 
 This bundle is separate from EPCS Navisworks Tools. No original EPCS code or real model files are included here.
@@ -97,13 +97,13 @@ This is configurable. Read [mapping instructions](docs/MAPPINGS.md) before treat
 ## Verification performed during development
 
 - Built Core, Demo and the Navisworks 2027 host plugin against the installed 2027 API.
-- Twelve standalone tests cover mixed schemas, geometry deduplication, provenance, unclassified retention, conflicts, source boundaries, source overrides, read errors, aggregate reconciliation, deterministic ordering, scan limits and CSV escaping.
+- Fourteen standalone tests cover mixed schemas, geometry deduplication, provenance, unclassified retention, conflicts, source boundaries, source overrides, read errors, aggregate reconciliation, deterministic ordering, scan limits and CSV escaping.
 - Synthetic demo generates three source groups and preserves four terminal geometry leaves as three provisional components.
 - **Real-model host execution, installation and performance are not yet verified.** Do not equate a successful build with a completed Navisworks integration test.
 
 ## Limits
 
-- Synchronous in-process scan; Navisworks may be busy. Default limit 250,000 nodes; exceeding it aborts before a complete export. Full snapshots consume memory and disk.
+- Synchronous in-process scan with native progress and Cancel. Version 0.1.1 defaults to a 1,000-node sample of one selected branch (with ancestor context), or model-root traversal if nothing is selected. A cooperative two-minute limit is checked between API calls; a stuck native call cannot be interrupted. Whole-model mode is explicit and retains the 250,000-node cap. Full snapshots consume memory and disk.
 - Properties are exported as displayed strings, not original CAD typed values or normalized units.
 - All properties exposed by the enumerated API categories are attempted; unavailable data is logged, not reconstructed.
 - The proposed WBS uses terminal geometry. Geometry-bearing parent nodes are inventoried and flagged for coverage review.
@@ -120,3 +120,7 @@ This is configurable. Read [mapping instructions](docs/MAPPINGS.md) before treat
 - **packaging/**: Navisworks 2027 application manifest.
 
 API reference: [Autodesk property-category and data-property overview](https://blog.autodesk.io/navisworks-net-api-properties/).
+
+## 0.1.1 recovery update
+
+A real-model trial of 0.1.0 ran for approximately 30 minutes without useful progress feedback. It was stopped with user authorization; its stage and outputs were not verified. Version 0.1.1 adds sample scope, cooperative cancellation/time checks, progress logs and explicit RUN-STATUS.txt / scan-scope.txt files. A completed sample is not a complete model inventory; truncated descendants and counts require review. Native UI cancellation and actual selected-branch execution remain to be verified in Navisworks.
