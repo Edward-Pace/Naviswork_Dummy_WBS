@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage SchemaVersion="1.0" AutodeskProduct="Navisworks" Name="Naviswork Dummy WBS" Description="Vendor-neutral property inventory and proposed WBS export" AppVersion="0.1.0" ProductType="Application">
+ <Components Description="Navisworks Manage and Simulate 2027">
+  <RuntimeRequirements OS="Win64" Platform="NAVMAN|NAVSIM" SeriesMin="Nw24" SeriesMax="Nw24"/>
+  <ComponentEntry AppType="ManagedPlugin" ModuleName="./Contents/v24/DummyWbs.Navisworks2027.dll"/>
+ </Components>
+</ApplicationPackage>

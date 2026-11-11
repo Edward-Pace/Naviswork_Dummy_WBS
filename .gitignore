@@ -1,0 +1,8 @@
+bin/
+obj/
+artifacts/
+local-data/
+.vs/
+*.user
+*.suo
+Directory.Build.local.props

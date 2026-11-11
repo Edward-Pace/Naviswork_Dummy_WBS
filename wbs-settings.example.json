@@ -1,0 +1,119 @@
+{
+  "Mappings": [
+    {
+      "Category": "*",
+      "Field": "Area",
+      "Property": "Area",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "Area",
+      "Property": "Area Code",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "Discipline",
+      "Property": "Discipline",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "System",
+      "Property": "System",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "System",
+      "Property": "System Name",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "LineId",
+      "Property": "Line ID",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "LineId",
+      "Property": "Line Number",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "LineId",
+      "Property": "Line No",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "PipeRun",
+      "Property": "PipeRun",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "PipeRun",
+      "Property": "Pipe Run",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "Tag",
+      "Property": "Equipment Tag",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "Tag",
+      "Property": "Tag Number",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "Tag",
+      "Property": "Tag",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "ItemId",
+      "Property": "GUID",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "ItemId",
+      "Property": "GlobalId",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "ItemId",
+      "Property": "Element ID",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "ComponentType",
+      "Property": "Name_Pip",
+      "SourceContains": ""
+    },
+    {
+      "Category": "*",
+      "Field": "ComponentType",
+      "Property": "Component Type",
+      "SourceContains": ""
+    }
+  ],
+  "MaximumNodes": 250000,
+  "WbsLevels": [
+    "SourceModel",
+    "Discipline",
+    "LineId",
+    "PipeRun"
+  ]
+}
