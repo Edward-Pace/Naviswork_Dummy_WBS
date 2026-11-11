@@ -10,6 +10,7 @@ namespace DummyWbs.Core
   [DataMember] public string Name { get; set; } = "";
   [DataMember] public string NameInternal { get; set; } = "";
   [DataMember] public string Value { get; set; } = "";
+  [DataMember] public string ValueType { get; set; } = "";
   [DataMember] public string Error { get; set; } = "";
  }
  [DataContract] public sealed class Node

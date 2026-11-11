@@ -37,8 +37,8 @@ namespace DummyWbs.Core
    {Row(w,"NodeKey","ParentKey","SourceKey","SourceModel","Name","TreePath","HasGeometry","TerminalGeometry","DirectPropertyCount");
     foreach(var n in nodes) {checkpoint?.Invoke("Writing files",2);Row(w,n.Key,n.ParentKey,n.SourceKey,n.SourceModel,n.Name,n.TreePath,n.HasGeometry.ToString(),n.IsTerminalGeometry.ToString(),N(n.Properties.Count));}}
    using(var w=Csv(directory,"properties.csv"))
-   {Row(w,"NodeKey","SourceModel","TreePath","Category","CategoryInternal","Property","PropertyInternal","DisplayValue","ReadError");
-    foreach(var n in nodes) {checkpoint?.Invoke("Writing files",3);foreach(var p in n.Properties) Row(w,n.Key,n.SourceModel,n.TreePath,p.Category,p.CategoryInternal,p.Name,p.NameInternal,p.Value,p.Error);}}
+   {Row(w,"NodeKey","SourceModel","TreePath","Category","CategoryInternal","Property","PropertyInternal","ValueType","Value","ReadError");
+    foreach(var n in nodes) {checkpoint?.Invoke("Writing files",3);foreach(var p in n.Properties) Row(w,n.Key,n.SourceModel,n.TreePath,p.Category,p.CategoryInternal,p.Name,p.NameInternal,p.ValueType,p.Value,p.Error);}}
    using(var w=Csv(directory,"property-profile.csv"))
    {Row(w,"SourceKey","SourceModel","Category","CategoryInternal","Property","PropertyInternal","NodesWithProperty","NonblankReadableValues","ReadErrors");
     var flat=nodes.SelectMany(n=>n.Properties.Select(p=>new{Node=n,Property=p}));

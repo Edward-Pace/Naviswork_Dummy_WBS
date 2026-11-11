@@ -26,7 +26,7 @@ namespace DummyWbs.Navisworks2027
     var path=Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"wbs-settings.json");
     var settings=File.Exists(path)?Exporter.ReadJson<Settings>(path):Settings.CreateDefault();settings.Validate();
     bool sample;
-    using(var options=new Form{Text="Dummy WBS 0.1.1 - Scan scope",Width=570,Height=280,StartPosition=FormStartPosition.CenterScreen,FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,MinimizeBox=false})
+    using(var options=new Form{Text="Dummy WBS 0.1.2 - Scan scope",Width=570,Height=280,StartPosition=FormStartPosition.CenterScreen,FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,MinimizeBox=false})
     {
      var small=new RadioButton{Left=18,Top=90,Width=520,Text="Sample: at most 1,000 nodes (recommended)",Checked=true};
      var full=new RadioButton{Left=18,Top=122,Width=520,Text="Whole model: maximum "+settings.MaximumNodes+" nodes"};
@@ -59,7 +59,7 @@ namespace DummyWbs.Navisworks2027
    string log=Path.Combine(folder,"dummy-wbs-scan-"+DateTime.UtcNow.ToString("yyyyMMdd-HHmmss")+"-"+Guid.NewGuid().ToString("N").Substring(0,6)+".log");
    int limit=sample?Math.Min(1000,settings.MaximumNodes):settings.MaximumNodes;
    var watch=Stopwatch.StartNew();double lastUi=-1,lastLog=-1;string lastStage="";bool completed=false;
-   var progress=NavisApp.BeginProgress("Dummy WBS 0.1.1","Node budget, not percent of full model. Cancel to stop.");
+   var progress=NavisApp.BeginProgress("Dummy WBS 0.1.2","Node budget, not percent of full model. Cancel to stop.");
    try
    {
     Action<string,int> checkpoint=(stage,count)=>{
@@ -138,7 +138,13 @@ namespace DummyWbs.Navisworks2027
       {
        checkpoint("Reading model",count);
        var value=new PropertyValue{Category=category.DisplayName??"",CategoryInternal=category.Name??"",Name=property.DisplayName??"",NameInternal=property.Name??""};
-       try{value.Value=property.Value==null?"":property.Value.ToDisplayString();}catch(Exception ex){value.Error=ex.Message;}
+       try
+       {
+        var native=property.Value;
+        value.ValueType=native==null?"Null":native.DataType.ToString();
+        value.Value=native==null?"":native.IsDisplayString?native.ToDisplayString():native.ToString();
+       }
+       catch(Exception ex){value.Error=ex.Message;}
        node.Properties.Add(value);
       }
      }catch(Exception ex) when (!(ex is OperationCanceledException)&&!(ex is TimeoutException))

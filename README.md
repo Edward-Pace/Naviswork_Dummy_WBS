@@ -104,7 +104,7 @@ This is configurable. Read [mapping instructions](docs/MAPPINGS.md) before treat
 ## Limits
 
 - Synchronous in-process scan with native progress and Cancel. Version 0.1.1 defaults to a 1,000-node sample of one selected branch (with ancestor context), or model-root traversal if nothing is selected. A cooperative two-minute limit is checked between API calls; a stuck native call cannot be interrupted. Whole-model mode is explicit and retains the 250,000-node cap. Full snapshots consume memory and disk.
-- Properties are exported as displayed strings, not original CAD typed values or normalized units.
+- Display-string variants retain their display string. Other variants use the API ToString representation, which can include a type prefix. ValueType is exported explicitly. These are not normalized quantities or units.
 - All properties exposed by the enumerated API categories are attempted; unavailable data is logged, not reconstructed.
 - The proposed WBS uses terminal geometry. Geometry-bearing parent nodes are inventoried and flagged for coverage review.
 - Snapshot node keys and generated WBS codes are not stable cross-revision identifiers.
@@ -124,3 +124,7 @@ API reference: [Autodesk property-category and data-property overview](https://b
 ## 0.1.1 recovery update
 
 A real-model trial of 0.1.0 ran for approximately 30 minutes without useful progress feedback. It was stopped with user authorization; its stage and outputs were not verified. Version 0.1.1 adds sample scope, cooperative cancellation/time checks, progress logs and explicit RUN-STATUS.txt / scan-scope.txt files. A completed sample is not a complete model inventory; truncated descendants and counts require review. Native UI cancellation and actual selected-branch execution remain to be verified in Navisworks.
+
+## 0.1.2 typed-property correction
+
+The first selected-component trial completed with 14 nodes, 231 property records and two geometry leaves grouped as one provisional component. It reported 100 property-read errors because ToDisplayString was used on non-display-string variants. The reader now checks IsDisplayString and uses ToString for other variants, recording DataType as ValueType. Original trial outputs remain unchanged. A fresh real-model sample must verify the correction; synthetic tests alone do not prove native variant conversion.
